@@ -1,5 +1,5 @@
 {
-   "abstract" : "Export Routines By Any Means Necessary",
+   "abstract" : "Import Routines By Any Means Necessary",
    "author" : [
       "Al Newkirk <anewkirk@ana.io>"
    ],
@@ -42,7 +42,7 @@
          "web" : "https://github.com/alnewkirk/Extorter"
       }
    },
-   "version" : "0.01",
+   "version" : "0.02",
    "x_authority" : "cpan:AWNCORP"
 }
 

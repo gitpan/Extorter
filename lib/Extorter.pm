@@ -1,4 +1,4 @@
-# ABSTRACT: Export Routines By Any Means Necessary
+# ABSTRACT: Import Routines By Any Means Necessary
 package Extorter;
 
 use 5.10.0;
@@ -8,7 +8,7 @@ use warnings;
 
 use Import::Into;
 
-our $VERSION = '0.01'; # VERSION
+our $VERSION = '0.02'; # VERSION
 
 sub import {
     my $class  = shift;
@@ -29,25 +29,25 @@ sub import {
             || eval "require $namespace";
 
         if ($argument =~ /\W/) {
-            $namespace->import::into('main', $argument);
+            $namespace->import::into($target, $argument);
             next;
         }
 
         no strict 'refs';
         my %EXPORT_TAGS = %{"${namespace}::EXPORT_TAGS"};
         if ($EXPORT_TAGS{$argument}) {
-            $namespace->import::into('main', $argument);
+            $namespace->import::into($target, $argument);
             next;
         }
 
         if ($namespace->can($argument)) {
             no warnings 'redefine';
-            *{"main::${argument}"} = \&{"${namespace}::${argument}"};
+            *{"${target}::${argument}"} = \&{"${namespace}::${argument}"};
             next;
         }
 
         # fallback
-        $namespace->import::into('main', $argument);
+        $namespace->import::into($target, $argument);
     }
 
     return;
@@ -63,11 +63,11 @@ __END__
 
 =head1 NAME
 
-Extorter - Export Routines By Any Means Necessary
+Extorter - Import Routines By Any Means Necessary
 
 =head1 VERSION
 
-version 0.01
+version 0.02
 
 =head1 SYNOPSIS
 
@@ -107,14 +107,14 @@ from the package(s) specified. It will import routines found in the package
 variables C<@EXPORT>, C<@EXPORT_OK> and C<%EXPORT_TAGS>, or, extract routines
 defined in the package which are not explicitly exported. Otherwise, as a last
 resort, Extorter will try to load the package, using a parameterized C<use>
-statement, in the event that the package has a custom or magical exporter that
+statement, in the event that the package has a custom or magical importer that
 does not conform to the L<Exporter> interface.
 
 Extorter accepts a list of fully-qualified declarations. Although the Extorter
 syntax may seem strange (uncommon), it is designed to be useful in a variety of
 circumstances, as well as promote clean and reasonable import lists. It has the
 added bonus of extracting functionality from packages which may not have
-originally been designed to be exported. Declarations are handled in the order
+originally been designed to be imported. Declarations are handled in the order
 in which they're declared, which means, as far as the import and/or extraction
 order goes, the last routine declared will be the one available to your program
 and any C<redefine> warnings will be suppressed. This is a feature not a bug.

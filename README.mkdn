@@ -1,10 +1,10 @@
 # NAME
 
-Extorter - Export Routines By Any Means Necessary
+Extorter - Import Routines By Any Means Necessary
 
 # VERSION
 
-version 0.01
+version 0.02
 
 # STATUS
 
@@ -48,14 +48,14 @@ from the package(s) specified. It will import routines found in the package
 variables `@EXPORT`, `@EXPORT_OK` and `%EXPORT_TAGS`, or, extract routines
 defined in the package which are not explicitly exported. Otherwise, as a last
 resort, Extorter will try to load the package, using a parameterized `use`
-statement, in the event that the package has a custom or magical exporter that
+statement, in the event that the package has a custom or magical importer that
 does not conform to the [Exporter](http://search.cpan.org/perldoc?Exporter) interface.
 
 Extorter accepts a list of fully-qualified declarations. Although the Extorter
 syntax may seem strange (uncommon), it is designed to be useful in a variety of
 circumstances, as well as promote clean and reasonable import lists. It has the
 added bonus of extracting functionality from packages which may not have
-originally been designed to be exported. Declarations are handled in the order
+originally been designed to be imported. Declarations are handled in the order
 in which they're declared, which means, as far as the import and/or extraction
 order goes, the last routine declared will be the one available to your program
 and any `redefine` warnings will be suppressed. This is a feature not a bug.
