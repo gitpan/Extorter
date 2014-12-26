@@ -1,6 +1,15 @@
 use Test::More;
 
 use Extorter qw(
+    *utf8
+    *strict
+    *warnings
+
+    Carp::croak
+    Carp::confess
+);
+
+use Extorter qw(
     Encode^encode_utf8
     Encode^decode_utf8
 );
@@ -10,6 +19,11 @@ use Extorter qw(
     Scalar::Util::refaddr
     Scalar::Util::reftype
     Scalar::Util::weaken
+);
+
+can_ok main => qw(
+    confess
+    croak
 );
 
 can_ok main => qw(

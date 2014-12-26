@@ -4,7 +4,7 @@ Extorter - Import Routines By Any Means Necessary
 
 # VERSION
 
-version 0.02
+version 0.03
 
 # STATUS
 
@@ -13,8 +13,16 @@ version 0.02
 # SYNOPSIS
 
     use Extorter qw(
+
+        *utf8
+        *strict
+        *warnings
+
         feature^say
         feature^state
+
+        Carp::croak
+        Carp::confess
 
         Data::Dump::dump
 
@@ -39,6 +47,7 @@ version 0.02
         Scalar::Util::refaddr
         Scalar::Util::reftype
         Scalar::Util::weaken
+
     );
 
 # DESCRIPTION
@@ -59,6 +68,8 @@ originally been designed to be imported. Declarations are handled in the order
 in which they're declared, which means, as far as the import and/or extraction
 order goes, the last routine declared will be the one available to your program
 and any `redefine` warnings will be suppressed. This is a feature not a bug.
+NOTE: Any declaration prefixed with an asterisk is assumed to be a
+fully-qualified namespace of a package and is imported directly.
 
 # AUTHOR
 

@@ -1,5 +1,9 @@
 Changelog for Extorter
 
-0.02 2014-12-26T05:03:08
+0.03 2014-12-26T06:43:00
+ - Allow importing packages-only.
+
+0.02 2014-12-26T05:03:15
+ - v0.02
  - Initial commit.
 

@@ -8,7 +8,7 @@ use warnings;
 
 use Import::Into;
 
-our $VERSION = '0.02'; # VERSION
+our $VERSION = '0.03'; # VERSION
 
 sub import {
     my $class  = shift;
@@ -18,12 +18,16 @@ sub import {
 
     my %seen;
     for my $declaration (@declarations) {
-        my ($namespace, $argument) = (
-            $declaration =~ /(.*)(?:\^|::)(.*)/
-        );
+        my @captures = $declaration =~ /(.*)(?:\^|::)(.*)/;
+           @captures = $declaration =~ /^\*(.*)/ unless @captures;
 
+        my ($namespace, $argument) = @captures;
         next unless $namespace;
-        next unless $argument;
+
+        unless ($argument) {
+            $namespace->import::into($target);
+            next;
+        }
 
         $seen{$namespace}++
             || eval "require $namespace";
@@ -67,13 +71,21 @@ Extorter - Import Routines By Any Means Necessary
 
 =head1 VERSION
 
-version 0.02
+version 0.03
 
 =head1 SYNOPSIS
 
     use Extorter qw(
+
+        *utf8
+        *strict
+        *warnings
+
         feature^say
         feature^state
+
+        Carp::croak
+        Carp::confess
 
         Data::Dump::dump
 
@@ -98,6 +110,7 @@ version 0.02
         Scalar::Util::refaddr
         Scalar::Util::reftype
         Scalar::Util::weaken
+
     );
 
 =head1 DESCRIPTION
@@ -118,6 +131,8 @@ originally been designed to be imported. Declarations are handled in the order
 in which they're declared, which means, as far as the import and/or extraction
 order goes, the last routine declared will be the one available to your program
 and any C<redefine> warnings will be suppressed. This is a feature not a bug.
+NOTE: Any declaration prefixed with an asterisk is assumed to be a
+fully-qualified namespace of a package and is imported directly.
 
 =head1 AUTHOR
 
