@@ -8,18 +8,28 @@ use warnings;
 
 use Import::Into;
 
-our $VERSION = '0.03'; # VERSION
+our $VERSION = '0.04'; # VERSION
 
 sub import {
     my $class  = shift;
     my $target = caller;
 
-    my @declarations = @_ or return;
+    my @imports = @_ or return;
+    $class->extort::into($target, @imports);
+
+    return;
+}
+
+sub extort::into {
+    my $class  = shift;
+    my $target = shift;
+
+    my @imports = @_ or return;
 
     my %seen;
-    for my $declaration (@declarations) {
-        my @captures = $declaration =~ /(.*)(?:\^|::)(.*)/;
-           @captures = $declaration =~ /^\*(.*)/ unless @captures;
+    for my $import (@imports) {
+        my @captures = $import =~ /(.*)(?:\^|::)(.*)/;
+           @captures = $import =~ /^\*(.*)/ unless @captures;
 
         my ($namespace, $argument) = @captures;
         next unless $namespace;
@@ -71,7 +81,7 @@ Extorter - Import Routines By Any Means Necessary
 
 =head1 VERSION
 
-version 0.03
+version 0.04
 
 =head1 SYNOPSIS
 
@@ -123,16 +133,39 @@ resort, Extorter will try to load the package, using a parameterized C<use>
 statement, in the event that the package has a custom or magical importer that
 does not conform to the L<Exporter> interface.
 
-Extorter accepts a list of fully-qualified declarations. Although the Extorter
-syntax may seem strange (uncommon), it is designed to be useful in a variety of
-circumstances, as well as promote clean and reasonable import lists. It has the
-added bonus of extracting functionality from packages which may not have
-originally been designed to be imported. Declarations are handled in the order
-in which they're declared, which means, as far as the import and/or extraction
-order goes, the last routine declared will be the one available to your program
-and any C<redefine> warnings will be suppressed. This is a feature not a bug.
-NOTE: Any declaration prefixed with an asterisk is assumed to be a
+Extorter accepts a list of fully-qualified declarations. The verbosity of the
+declarations are meant to promote explicit, clean, and reasonable import lists.
+Extorter has the added bonus of extracting functionality from packages which may
+not have originally been designed to be imported. Declarations are handled in
+the order in which they're declared, which means, as far as the import and/or
+extraction order goes, the last routine declared will be the one available to
+your program and any C<redefine> warnings will be suppressed. This is a feature
+not a bug. NOTE: Any declaration prefixed with an asterisk is assumed to be a
 fully-qualified namespace of a package and is imported directly.
+
+=head1 FUNCTIONS
+
+=head2 extort::into
+
+The C<into> function declared in the C<extort> package, used as a kind of global
+method invokable by any package, is designed to load and import the specified
+C<@declarations>, as showcased in the synopsis, into the C<$target> package.
+
+    $package->extort::into($target, @declarations);
+
+    e.g.
+
+    $package->extort::into($package, 'Scalar::Util::blessed');
+    $package->extort::into($package, 'Scalar::Util::refaddr');
+    $package->extort::into($package, 'Scalar::Util::reftype');
+    $package->extort::into($package, 'Scalar::Util::weaken');
+
+    $package->extort::into($target, 'List::AllUtils::distinct');
+    $package->extort::into($target, 'List::AllUtils::firstval');
+    $package->extort::into($target, 'List::AllUtils::lastval');
+    $package->extort::into($target, 'List::AllUtils::pairs');
+    $package->extort::into($target, 'List::AllUtils::part');
+    $package->extort::into($target, 'List::AllUtils::uniq');
 
 =head1 AUTHOR
 

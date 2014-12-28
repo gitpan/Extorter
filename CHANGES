@@ -1,6 +1,10 @@
 Changelog for Extorter
 
-0.03 2014-12-26T06:43:00
+0.04 2014-12-28T17:26:51
+ - Allow imorting on-demand via extort::into function.
+
+0.03 2014-12-26T06:43:04
+ - v0.03
  - Allow importing packages-only.
 
 0.02 2014-12-26T05:03:15
