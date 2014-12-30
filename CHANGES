@@ -1,6 +1,11 @@
 Changelog for Extorter
 
-0.04 2014-12-28T17:26:51
+0.05 2014-12-30T02:14:54
+ - Added 2 and 3-arg versions of extort::into and updated the
+   documentation.
+
+0.04 2014-12-28T17:26:55
+ - v0.04
  - Allow imorting on-demand via extort::into function.
 
 0.03 2014-12-26T06:43:04

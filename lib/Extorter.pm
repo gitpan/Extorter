@@ -8,14 +8,14 @@ use warnings;
 
 use Import::Into;
 
-our $VERSION = '0.04'; # VERSION
+our $VERSION = '0.05'; # VERSION
 
 sub import {
     my $class  = shift;
     my $target = caller;
 
     my @imports = @_ or return;
-    $class->extort::into($target, @imports);
+    $class->extort::into($target, $_) for @imports;
 
     return;
 }
@@ -25,6 +25,9 @@ sub extort::into {
     my $target = shift;
 
     my @imports = @_ or return;
+
+    @imports = map join('::', $imports[0], $_), @imports[1..$#imports]
+        if @imports > 1;
 
     my %seen;
     for my $import (@imports) {
@@ -81,7 +84,7 @@ Extorter - Import Routines By Any Means Necessary
 
 =head1 VERSION
 
-version 0.04
+version 0.05
 
 =head1 SYNOPSIS
 
@@ -155,17 +158,72 @@ C<@declarations>, as showcased in the synopsis, into the C<$target> package.
 
     e.g.
 
-    $package->extort::into($package, 'Scalar::Util::blessed');
     $package->extort::into($package, 'Scalar::Util::refaddr');
     $package->extort::into($package, 'Scalar::Util::reftype');
-    $package->extort::into($package, 'Scalar::Util::weaken');
 
-    $package->extort::into($target, 'List::AllUtils::distinct');
     $package->extort::into($target, 'List::AllUtils::firstval');
     $package->extort::into($target, 'List::AllUtils::lastval');
-    $package->extort::into($target, 'List::AllUtils::pairs');
-    $package->extort::into($target, 'List::AllUtils::part');
-    $package->extort::into($target, 'List::AllUtils::uniq');
+
+Additionally, this function supports a 3-argument version, where the 3rd option
+is a list of arguments that will be automatically concatenated with the
+C<$target> package to provide the necessary declarations. The following is an
+example:
+
+    $package->extort::into($package, 'Scalar::Util', qw(refaddr reftype));
+    $package->extort::into($target, 'List::AllUtils', qw(firstval lastval));
+
+=head1 VERSIONS AND FEATURES
+
+Declaring version requirements and version-specific features is handled a bit
+differently. As mentioned in the description, any declaration prefixed with an
+asterisk is assumed to be a fully-qualified namespace of a package and is
+imported directly. This works for modules as well as pragmas like C<strict>,
+C<warnings>, C<utf8>, and others. However, this does not work for declaring a
+Perl version or version-specific features. Currently, there is no single
+declaration which will allow you to configure Extorter to implement them but
+the following approach is equivalent:
+
+    use 5.18.0;
+
+The Perl version requirement will be enforced whenever a scope issuing the
+B<use VERSION> declaration is found, i.e. as long as you ensure that declaration
+is seen, the version requirement will be enforced for your program. So now we
+just need to figure out how to import features into the calling namespace using
+Extorter. The following approach works towards that end:
+
+    use 5.18.0;
+    use Extorter qw(*strict *warnings feature^:5.18);
+
+=head1 EXTORTER AND EXPORTER
+
+You can use Extorter with the L<Exporter> module, to create a sophisticated
+exporter which implements the Exporter interface. The following is an example:
+
+    package MyApp::Imports;
+
+    use Extorter;
+    use base 'Exporter';
+
+    our @EXPORT_OK = qw(
+        greeting
+    );
+
+    our @IMPORTS = qw(
+        List::AllUtils::firstval
+        List::AllUtils::lastval
+    );
+
+    sub greeting {
+        'Hello World'
+    }
+
+    sub import {
+        my ($class, $target) = (shift, caller);
+        $class->extort::into($target, $_) for @IMPORTS;
+        return $class->export_to_level(2, $target);
+    }
+
+    1;
 
 =head1 AUTHOR
 

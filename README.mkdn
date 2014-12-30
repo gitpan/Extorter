@@ -4,7 +4,7 @@ Extorter - Import Routines By Any Means Necessary
 
 # VERSION
 
-version 0.04
+version 0.05
 
 # STATUS
 
@@ -82,17 +82,72 @@ method invokable by any package, is designed to load and import the specified
 
     e.g.
 
-    $package->extort::into($package, 'Scalar::Util::blessed');
     $package->extort::into($package, 'Scalar::Util::refaddr');
     $package->extort::into($package, 'Scalar::Util::reftype');
-    $package->extort::into($package, 'Scalar::Util::weaken');
 
-    $package->extort::into($target, 'List::AllUtils::distinct');
     $package->extort::into($target, 'List::AllUtils::firstval');
     $package->extort::into($target, 'List::AllUtils::lastval');
-    $package->extort::into($target, 'List::AllUtils::pairs');
-    $package->extort::into($target, 'List::AllUtils::part');
-    $package->extort::into($target, 'List::AllUtils::uniq');
+
+Additionally, this function supports a 3-argument version, where the 3rd option
+is a list of arguments that will be automatically concatenated with the
+`$target` package to provide the necessary declarations. The following is an
+example:
+
+    $package->extort::into($package, 'Scalar::Util', qw(refaddr reftype));
+    $package->extort::into($target, 'List::AllUtils', qw(firstval lastval));
+
+# VERSIONS AND FEATURES
+
+Declaring version requirements and version-specific features is handled a bit
+differently. As mentioned in the description, any declaration prefixed with an
+asterisk is assumed to be a fully-qualified namespace of a package and is
+imported directly. This works for modules as well as pragmas like `strict`,
+`warnings`, `utf8`, and others. However, this does not work for declaring a
+Perl version or version-specific features. Currently, there is no single
+declaration which will allow you to configure Extorter to implement them but
+the following approach is equivalent:
+
+    use 5.18.0;
+
+The Perl version requirement will be enforced whenever a scope issuing the
+**use VERSION** declaration is found, i.e. as long as you ensure that declaration
+is seen, the version requirement will be enforced for your program. So now we
+just need to figure out how to import features into the calling namespace using
+Extorter. The following approach works towards that end:
+
+    use 5.18.0;
+    use Extorter qw(*strict *warnings feature^:5.18);
+
+# EXTORTER AND EXPORTER
+
+You can use Extorter with the [Exporter](https://metacpan.org/pod/Exporter) module, to create a sophisticated
+exporter which implements the Exporter interface. The following is an example:
+
+    package MyApp::Imports;
+
+    use Extorter;
+    use base 'Exporter';
+
+    our @EXPORT_OK = qw(
+        greeting
+    );
+
+    our @IMPORTS = qw(
+        List::AllUtils::firstval
+        List::AllUtils::lastval
+    );
+
+    sub greeting {
+        'Hello World'
+    }
+
+    sub import {
+        my ($class, $target) = (shift, caller);
+        $class->extort::into($target, $_) for @IMPORTS;
+        return $class->export_to_level(2, $target);
+    }
+
+    1;
 
 # AUTHOR
 
