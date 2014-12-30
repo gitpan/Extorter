@@ -8,7 +8,7 @@ use warnings;
 
 use Import::Into;
 
-our $VERSION = '0.05'; # VERSION
+our $VERSION = '0.06'; # VERSION
 
 sub import {
     my $class  = shift;
@@ -84,7 +84,7 @@ Extorter - Import Routines By Any Means Necessary
 
 =head1 VERSION
 
-version 0.05
+version 0.06
 
 =head1 SYNOPSIS
 
@@ -146,32 +146,6 @@ your program and any C<redefine> warnings will be suppressed. This is a feature
 not a bug. NOTE: Any declaration prefixed with an asterisk is assumed to be a
 fully-qualified namespace of a package and is imported directly.
 
-=head1 FUNCTIONS
-
-=head2 extort::into
-
-The C<into> function declared in the C<extort> package, used as a kind of global
-method invokable by any package, is designed to load and import the specified
-C<@declarations>, as showcased in the synopsis, into the C<$target> package.
-
-    $package->extort::into($target, @declarations);
-
-    e.g.
-
-    $package->extort::into($package, 'Scalar::Util::refaddr');
-    $package->extort::into($package, 'Scalar::Util::reftype');
-
-    $package->extort::into($target, 'List::AllUtils::firstval');
-    $package->extort::into($target, 'List::AllUtils::lastval');
-
-Additionally, this function supports a 3-argument version, where the 3rd option
-is a list of arguments that will be automatically concatenated with the
-C<$target> package to provide the necessary declarations. The following is an
-example:
-
-    $package->extort::into($package, 'Scalar::Util', qw(refaddr reftype));
-    $package->extort::into($target, 'List::AllUtils', qw(firstval lastval));
-
 =head1 VERSIONS AND FEATURES
 
 Declaring version requirements and version-specific features is handled a bit
@@ -224,6 +198,46 @@ exporter which implements the Exporter interface. The following is an example:
     }
 
     1;
+
+=head1 FUNCTIONS
+
+=head2 extort::into
+
+The C<into> function declared in the C<extort> package, used as a kind of global
+method invokable by any package, is designed to load and import the specified
+C<@declarations>, as showcased in the synopsis, into the C<$target> package.
+
+    $package->extort::into($target, @declarations);
+
+    e.g.
+
+    $package->extort::into($package, 'Scalar::Util::refaddr');
+    $package->extort::into($package, 'Scalar::Util::reftype');
+
+    $package->extort::into($target, 'List::AllUtils::firstval');
+    $package->extort::into($target, 'List::AllUtils::lastval');
+
+Additionally, this function supports a 3-argument version, where the 3rd option
+is a list of arguments that will be automatically concatenated with the
+C<$target> package to provide the necessary declarations. The following is an
+example:
+
+    $package->extort::into($target, $namespace, @arguments);
+
+    e.g.
+
+    my @scalar_utils = 'Scalar::Util' => qw(
+        refaddr
+        reftype
+    );
+
+    my @list_utils = 'List::AllUtils' => qw(
+        firstval
+        lastval
+    );
+
+    $package->extort::into($target, @scalar_utils);
+    $package->extort::into($target, @list_utils);
 
 =head1 AUTHOR
 
