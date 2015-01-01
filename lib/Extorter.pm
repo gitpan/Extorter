@@ -8,7 +8,7 @@ use warnings;
 
 use Import::Into;
 
-our $VERSION = '0.07'; # VERSION
+our $VERSION = '0.08'; # VERSION
 
 sub import {
     my $class  = shift;
@@ -84,7 +84,7 @@ Extorter - Import Routines By Any Means Necessary
 
 =head1 VERSION
 
-version 0.07
+version 0.08
 
 =head1 SYNOPSIS
 
@@ -194,10 +194,59 @@ exporter which implements the Exporter interface. The following is an example:
     sub import {
         my ($class, $target) = (shift, caller);
         $class->extort::into($target, $_) for @IMPORT_OK;
-        return $class->export_to_level(2, $target);
+        $class->export_to_level(2, $target);
     }
 
     1;
+
+=head1 EXTORTION ON-DEMAND
+
+Yet another pattern you could use to have Extorter make importing into your
+environment more dynamic and configurable, is by implementing a parameterizable
+importer which delegates to the C<extort::into> function. The following is an
+example:
+
+    package MyApp::Imports;
+
+    use Extorter;
+
+    my @common = qw(
+        *strict
+        *warnings
+        *utf8::all
+
+        autodie^:all
+        feature^:5.18
+
+        *Moo
+        Carp::carp
+        Carp::croak
+        Scalar::Util::reftype
+        Scalar::Util::refaddr
+    );
+
+    sub import {
+        my ($class, $target) = (shift, caller);
+        my @arguments = @_;
+
+        $class->extort::into($target, $_) for @common;
+        $class->extort::into($target, $_) for @arguments;
+
+        return;
+    }
+
+    1;
+
+The example above allows the calling class to import whatever defaults your
+application deems appropriate while also giving the calling class the ability to
+demand additional features. The following is an example of a class which imports
+all of the common declarations defined in the MyApp::Imports module and also
+demands two additional imports itself:
+
+    use MyApp::Imports qw(
+        MyApp::Functions::necessary_thing1
+        MyApp::Functions::necessary_thing2
+    );
 
 =head1 FUNCTIONS
 
@@ -211,8 +260,8 @@ C<@declarations>, as showcased in the synopsis, into the C<$target> package.
 
     e.g.
 
-    $package->extort::into($package, 'Scalar::Util::refaddr');
-    $package->extort::into($package, 'Scalar::Util::reftype');
+    $package->extort::into($target, 'Scalar::Util::refaddr');
+    $package->extort::into($target, 'Scalar::Util::reftype');
 
     $package->extort::into($target, 'List::AllUtils::firstval');
     $package->extort::into($target, 'List::AllUtils::lastval');
