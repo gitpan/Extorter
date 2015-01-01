@@ -81,7 +81,7 @@ VERSIONS AND FEATURES
     towards that end:
 
         use 5.18.0;
-        use Extorter qw(*strict *warnings feature^:5.18);
+        use Extorter 'feature^:5.18';
 
 EXTORTER AND EXPORTER
 
@@ -95,21 +95,21 @@ EXTORTER AND EXPORTER
         use base 'Exporter';
     
         our @EXPORT_OK = qw(
-            greeting
+            optional_thing1
         );
     
-        our @IMPORTS = qw(
-            List::AllUtils::firstval
-            List::AllUtils::lastval
+        our @IMPORT_OK = qw(
+            MyApp::Functions::necessary_thing1
+            MyApp::Functions::necessary_thing2
         );
     
-        sub greeting {
-            'Hello World'
+        sub optional_thing1 {
+            # does stuff
         }
     
         sub import {
             my ($class, $target) = (shift, caller);
-            $class->extort::into($target, $_) for @IMPORTS;
+            $class->extort::into($target, $_) for @IMPORT_OK;
             return $class->export_to_level(2, $target);
         }
     
@@ -120,7 +120,7 @@ EXTORTER AND EXPORTER
     the specified @declarations, as showcased in the synopsis, into the
     $target package.
 
-        $package->extort::into($target, @declarations);
+        $package->extort::into($target, $declaration);
     
         e.g.
     

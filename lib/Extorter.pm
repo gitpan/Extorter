@@ -8,7 +8,7 @@ use warnings;
 
 use Import::Into;
 
-our $VERSION = '0.06'; # VERSION
+our $VERSION = '0.07'; # VERSION
 
 sub import {
     my $class  = shift;
@@ -84,7 +84,7 @@ Extorter - Import Routines By Any Means Necessary
 
 =head1 VERSION
 
-version 0.06
+version 0.07
 
 =head1 SYNOPSIS
 
@@ -143,8 +143,8 @@ not have originally been designed to be imported. Declarations are handled in
 the order in which they're declared, which means, as far as the import and/or
 extraction order goes, the last routine declared will be the one available to
 your program and any C<redefine> warnings will be suppressed. This is a feature
-not a bug. NOTE: Any declaration prefixed with an asterisk is assumed to be a
-fully-qualified namespace of a package and is imported directly.
+not a bug. B<NOTE: Any declaration prefixed with an asterisk is assumed to be a
+fully-qualified namespace of a package and is imported directly.>
 
 =head1 VERSIONS AND FEATURES
 
@@ -166,7 +166,7 @@ just need to figure out how to import features into the calling namespace using
 Extorter. The following approach works towards that end:
 
     use 5.18.0;
-    use Extorter qw(*strict *warnings feature^:5.18);
+    use Extorter 'feature^:5.18';
 
 =head1 EXTORTER AND EXPORTER
 
@@ -179,21 +179,21 @@ exporter which implements the Exporter interface. The following is an example:
     use base 'Exporter';
 
     our @EXPORT_OK = qw(
-        greeting
+        optional_thing1
     );
 
-    our @IMPORTS = qw(
-        List::AllUtils::firstval
-        List::AllUtils::lastval
+    our @IMPORT_OK = qw(
+        MyApp::Functions::necessary_thing1
+        MyApp::Functions::necessary_thing2
     );
 
-    sub greeting {
-        'Hello World'
+    sub optional_thing1 {
+        # does stuff
     }
 
     sub import {
         my ($class, $target) = (shift, caller);
-        $class->extort::into($target, $_) for @IMPORTS;
+        $class->extort::into($target, $_) for @IMPORT_OK;
         return $class->export_to_level(2, $target);
     }
 
@@ -207,7 +207,7 @@ The C<into> function declared in the C<extort> package, used as a kind of global
 method invokable by any package, is designed to load and import the specified
 C<@declarations>, as showcased in the synopsis, into the C<$target> package.
 
-    $package->extort::into($target, @declarations);
+    $package->extort::into($target, $declaration);
 
     e.g.
 
