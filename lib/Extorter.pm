@@ -8,7 +8,7 @@ use warnings;
 
 use Import::Into;
 
-our $VERSION = '0.08'; # VERSION
+our $VERSION = '0.09'; # VERSION
 
 sub import {
     my $class  = shift;
@@ -31,8 +31,8 @@ sub extort::into {
 
     my %seen;
     for my $import (@imports) {
-        my @captures = $import =~ /(.*)(?:\^|::)(.*)/;
-           @captures = $import =~ /^\*(.*)/ unless @captures;
+        my @captures = $import =~ /^(\w.+)(?:\^|::)(.*)/;
+           @captures = $import =~ /^\*(.+)/ unless @captures;
 
         my ($namespace, $argument) = @captures;
         next unless $namespace;
@@ -84,7 +84,7 @@ Extorter - Import Routines By Any Means Necessary
 
 =head1 VERSION
 
-version 0.08
+version 0.09
 
 =head1 SYNOPSIS
 
